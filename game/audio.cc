@@ -403,8 +403,8 @@ struct Output {
 		if (mics.size() > 0 && config["audio/pass-through"].b()) {
 			// Decrease music volume
 			float amp = 1.0f / config["audio/pass-through_ratio"].f();
-			if (amp != 1.0f) 
-				for (auto& s : make_iterator_range(begin, end)) 
+			if (amp != 1.0f)
+				for (auto& s : make_iterator_range(begin, end))
 					s *= amp;
 			// Do the mixing
 			for (auto& m: mics) if (m) m->output(begin, end, rate);
@@ -558,7 +558,7 @@ struct Audio::Impl {
 				if (assigned_mics > 0 && params.out > 0) msg.append(",");
 				if (params.out > 0) fmt::format_to(std::back_inserter(msg), " output={}", params.out);
 				SpdLogger::info(LogSystem::AUDIO, msg);
-	
+
 				// Start capture/playback on this device (likely to throw due to audio system errors)
 				// NOTE: When it throws we want to keep the device in devices to avoid calling ~Device
 				// which often would hit the Pa_CloseStream hang bug and terminate the application.
@@ -709,14 +709,20 @@ bool Audio::isPlaying() const {
 void Audio::seek(double offset) {
 	Output& o = self->output;
 	std::lock_guard<std::mutex> l(o.mutex);
-	for (auto& trk: o.playing) trk->seek(clamp(trk->pos() + offset, 0.0, trk->duration()));
+	for (auto& trk: o.playing) {
+    SpdLogger::error(LogSystem::WEBCAM, "---------Seeking to pos {}", trk->pos() + offset);
+    trk->seek(clamp(trk->pos() + offset, 0.0, trk->duration()));
+  }
 	pause(false);
 }
 
 void Audio::seekPos(double pos) {
 	Output& o = self->output;
 	std::lock_guard<std::mutex> l(o.mutex);
-	for (auto& trk: o.playing) trk->seek(pos);
+	for (auto& trk: o.playing) {
+    SpdLogger::error(LogSystem::WEBCAM, "---------Seeking to pos {}", pos);
+    trk->seek(pos);
+  }
 	pause(false);
 }
 

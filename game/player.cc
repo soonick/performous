@@ -22,11 +22,13 @@ void Player::prepare() {
 }
 
 void Player::update() {
+  SpdLogger::error(LogSystem::WEBCAM, "---------Updating player m_pos: {} of {}", m_pos, m_pitch.size());
 	if (m_pos == m_pitch.size()) return; // End of song already
 	double beginTime = Engine::TIMESTEP * static_cast<double>(m_pos);
 	// Get the currently sung tone and store it in player's pitch data (also control inactivity timer)
 	Tone const* t = m_analyzer.findTone();
 	if (t) {
+    // SpdLogger::error(LogSystem::WEBCAM, "---------Has Tone freq: {} stabledb: {}", t->freq, t->stabledb);
 		m_activitytimer = 1000;
 		m_pitch[m_pos++] = std::make_pair(t->freq, t->stabledb);
 	} else {
@@ -42,6 +44,7 @@ void Player::update() {
 		if (t) {
 			double note = MusicalScale(m_vocal.scale).setFreq(t->freq).getNote();
 			// Add score
+      // SpdLogger::error(LogSystem::WEBCAM, "--------- beginTime: {} endTime: {} note: {}", beginTime, endTime, note);
 			double score_addition = m_vocal.m_scoreFactor * m_scoreIt->score(note, beginTime, endTime);
 			m_score += score_addition;
 			m_noteScore += score_addition;

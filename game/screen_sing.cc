@@ -458,12 +458,17 @@ void ScreenSing::manageEvent(SDL_Event event) {
 		if (m_song->danceTracks.empty()) { // Seeking backwards is currently not permitted for dance songs
 			if (key == SDL_SCANCODE_HOME) { m_audio.seekPos(0.0); seekback = true; }
 			if (key == SDL_SCANCODE_LEFT) {
+        SpdLogger::error(LogSystem::WEBCAM, "---------Skipping back");
 				Song::SongSection section("error", 0);
 				if (m_song->getPrevSection(m_audio.getPosition(), section)) {
+          SpdLogger::error(LogSystem::WEBCAM, "---------Got prev section");
 					m_audio.seekPos(section.begin);
 					// TODO: display popup with section.name here
 					SpdLogger::info(LogSystem::DANCING, "Section={}", section.name);
-				} else m_audio.seek(-5.0);
+				} else {
+          SpdLogger::error(LogSystem::WEBCAM, "---------No prev section");
+          m_audio.seek(-5.0);
+        }
 				seekback = true;
 			}
 		}
@@ -715,4 +720,3 @@ void ScreenSing::drawMenu() {
 	}
 	m_menu.dimensions.stretch(w, h);
 }
-
